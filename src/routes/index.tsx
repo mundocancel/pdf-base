@@ -4,8 +4,10 @@ import {
   DEFAULT_RULES,
   type ExtractionResult,
   type ExtractionRule,
+  buildStructuredJSON,
   downloadFile,
   exportCSV,
+  exportEntitiesCSV,
   extractPdf,
 } from "@/lib/pdf-extract";
 import { Button } from "@/components/ui/button";
@@ -63,7 +65,7 @@ function Index() {
   const persistHistory = (next: ExtractionResult[]) => {
     setHistory(next);
     // drop heavy text from storage to save quota
-    const slim = next.map((r) => ({ ...r, text: r.text.slice(0, 5000) }));
+    const slim = next.map((r) => ({ ...r, text: r.text.slice(0, 2000) }));
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
     } catch {}
@@ -200,31 +202,52 @@ function Index() {
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="font-semibold">{current.fileName}</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {current.pages} páginas · {current.fields.length} datos
-                    detectados
+                  <p className="text-xs text-muted-foreground flex flex-wrap gap-2 items-center">
+                    <span>{current.pages} páginas</span>
+                    <span>·</span>
+                    <span>{current.entidades?.length ?? 0} entidades</span>
+                    <span>·</span>
+                    <span>{current.partes_lista?.length ?? 0} partes</span>
+                    <Badge variant="default" className="ml-1">
+                      Marca: {current.marca_detectada ?? "—"}
+                      {typeof current.confianza_marca === "number" &&
+                        ` (${Math.round(current.confianza_marca * 100)}%)`}
+                    </Badge>
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() =>
                       downloadFile(
                         exportCSV(current.fields),
-                        current.fileName.replace(/\.pdf$/i, "") + ".csv",
+                        current.fileName.replace(/\.pdf$/i, "") + "-datos.csv",
                         "text/csv"
                       )
                     }
                   >
-                    <Download className="h-4 w-4 mr-1" /> CSV
+                    <Download className="h-4 w-4 mr-1" /> Datos CSV
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() =>
                       downloadFile(
-                        JSON.stringify(current, null, 2),
+                        exportEntitiesCSV(current.entidades || []),
+                        current.fileName.replace(/\.pdf$/i, "") + "-entidades.csv",
+                        "text/csv"
+                      )
+                    }
+                  >
+                    <Download className="h-4 w-4 mr-1" /> Entidades CSV
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      downloadFile(
+                        JSON.stringify(buildStructuredJSON(current), null, 2),
                         current.fileName.replace(/\.pdf$/i, "") + ".json",
                         "application/json"
                       )
@@ -243,11 +266,100 @@ function Index() {
                 ))}
               </div>
 
-              <Tabs defaultValue="fields">
+              <Tabs defaultValue="entidades">
                 <TabsList>
+                  <TabsTrigger value="entidades">Entidades</TabsTrigger>
+                  <TabsTrigger value="partes">Partes</TabsTrigger>
                   <TabsTrigger value="fields">Datos</TabsTrigger>
                   <TabsTrigger value="text">Texto</TabsTrigger>
                 </TabsList>
+                <TabsContent value="entidades">
+                  <div className="rounded-md border max-h-[460px] overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-24">Tipo</TableHead>
+                          <TableHead className="w-28">Código</TableHead>
+                          <TableHead>Detalle</TableHead>
+                          <TableHead className="w-20 text-right">Conf.</TableHead>
+                          <TableHead className="w-16 text-right">Pág.</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(current.entidades || []).map((e, i) => (
+                          <TableRow key={i}>
+                            <TableCell>
+                              <Badge variant="outline">{e.tipo}</Badge>
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {String(e.datos.codigo ?? "")}
+                            </TableCell>
+                            <TableCell className="text-xs">
+                              {[
+                                e.datos.nombre,
+                                e.datos.tipo,
+                                e.datos.dimensiones_mm && `${e.datos.dimensiones_mm} mm`,
+                                e.datos.dimensiones_pulg,
+                                e.datos.material,
+                                e.datos.capacidad_kg && `${e.datos.capacidad_kg} kg`,
+                                e.datos.espesor_mm && `${e.datos.espesor_mm} mm`,
+                                e.datos.descripcion,
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">
+                              {Math.round(e.confianza * 100)}%
+                            </TableCell>
+                            <TableCell className="text-right text-muted-foreground">
+                              {e.pagina}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {(!current.entidades || current.entidades.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                              No se detectaron entidades estructuradas.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
+                <TabsContent value="partes">
+                  <div className="rounded-md border max-h-[460px] overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-28">Clave</TableHead>
+                          <TableHead className="w-24">Pzas/Atado</TableHead>
+                          <TableHead className="w-24">Largo Std</TableHead>
+                          <TableHead>Descripción</TableHead>
+                          <TableHead className="w-16 text-right">Pág.</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(current.partes_lista || []).map((p, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-mono text-xs">{p.clave}</TableCell>
+                            <TableCell className="text-xs">{p.piezas_por_atado}</TableCell>
+                            <TableCell className="text-xs">{p.largo_std}</TableCell>
+                            <TableCell className="text-xs">{p.descripcion}</TableCell>
+                            <TableCell className="text-right text-muted-foreground">{p.pagina}</TableCell>
+                          </TableRow>
+                        ))}
+                        {(!current.partes_lista || current.partes_lista.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                              Sin tablas de partes detectadas.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
                 <TabsContent value="fields" className="space-y-3">
                   <Input
                     placeholder="Filtrar resultados…"
