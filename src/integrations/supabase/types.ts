@@ -14,7 +14,208 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assemblies: {
+        Row: {
+          cantidad: number
+          created_at: string
+          id: string
+          material_relacionado_id: string
+          notas: string | null
+          perfil_principal_id: string
+        }
+        Insert: {
+          cantidad?: number
+          created_at?: string
+          id?: string
+          material_relacionado_id: string
+          notas?: string | null
+          perfil_principal_id: string
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          id?: string
+          material_relacionado_id?: string
+          notas?: string | null
+          perfil_principal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblies_material_relacionado_id_fkey"
+            columns: ["material_relacionado_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblies_perfil_principal_id_fkey"
+            columns: ["perfil_principal_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deductions_formulas: {
+        Row: {
+          cantidad_piezas: number
+          created_at: string
+          formula_corte_alto: string | null
+          formula_corte_ancho: string | null
+          id: string
+          notas: string | null
+          perfil_id: string
+          tipologia_id: string
+        }
+        Insert: {
+          cantidad_piezas?: number
+          created_at?: string
+          formula_corte_alto?: string | null
+          formula_corte_ancho?: string | null
+          id?: string
+          notas?: string | null
+          perfil_id: string
+          tipologia_id: string
+        }
+        Update: {
+          cantidad_piezas?: number
+          created_at?: string
+          formula_corte_alto?: string | null
+          formula_corte_ancho?: string | null
+          id?: string
+          notas?: string | null
+          perfil_id?: string
+          tipologia_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deductions_formulas_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deductions_formulas_tipologia_id_fkey"
+            columns: ["tipologia_id"]
+            isOneToOne: false
+            referencedRelation: "typologies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials: {
+        Row: {
+          categoria: Database["public"]["Enums"]["material_category"]
+          codigo_fabricante: string
+          created_at: string
+          descripcion: string | null
+          espesor_mm: number | null
+          herraje_tipo: Database["public"]["Enums"]["herraje_tipo"] | null
+          id: string
+          largo_estandar: number | null
+          nombre_estandarizado:
+            | Database["public"]["Enums"]["perfil_nombre"]
+            | null
+          peso: number | null
+          serie_id: string | null
+          vidrio_tipo: string | null
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["material_category"]
+          codigo_fabricante: string
+          created_at?: string
+          descripcion?: string | null
+          espesor_mm?: number | null
+          herraje_tipo?: Database["public"]["Enums"]["herraje_tipo"] | null
+          id?: string
+          largo_estandar?: number | null
+          nombre_estandarizado?:
+            | Database["public"]["Enums"]["perfil_nombre"]
+            | null
+          peso?: number | null
+          serie_id?: string | null
+          vidrio_tipo?: string | null
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["material_category"]
+          codigo_fabricante?: string
+          created_at?: string
+          descripcion?: string | null
+          espesor_mm?: number | null
+          herraje_tipo?: Database["public"]["Enums"]["herraje_tipo"] | null
+          id?: string
+          largo_estandar?: number | null
+          nombre_estandarizado?:
+            | Database["public"]["Enums"]["perfil_nombre"]
+            | null
+          peso?: number | null
+          serie_id?: string | null
+          vidrio_tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_serie_id_fkey"
+            columns: ["serie_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      series: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      typologies: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          serie_id: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          serie_id: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          serie_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typologies_serie_id_fkey"
+            columns: ["serie_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +224,27 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      herraje_tipo:
+        | "Bisagra"
+        | "Carretilla"
+        | "Escuadra"
+        | "Felpa"
+        | "Vinil"
+        | "Cremona"
+        | "Cierre"
+        | "Brazo"
+        | "Otro"
+      material_category: "perfil" | "herraje" | "vidrio"
+      perfil_nombre:
+        | "Jamba"
+        | "Zoclo"
+        | "Cabezal"
+        | "Riel"
+        | "Traslape"
+        | "Junquillo"
+        | "Interlock"
+        | "Escalonado"
+        | "Bolsa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +371,30 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      herraje_tipo: [
+        "Bisagra",
+        "Carretilla",
+        "Escuadra",
+        "Felpa",
+        "Vinil",
+        "Cremona",
+        "Cierre",
+        "Brazo",
+        "Otro",
+      ],
+      material_category: ["perfil", "herraje", "vidrio"],
+      perfil_nombre: [
+        "Jamba",
+        "Zoclo",
+        "Cabezal",
+        "Riel",
+        "Traslape",
+        "Junquillo",
+        "Interlock",
+        "Escalonado",
+        "Bolsa",
+      ],
+    },
   },
 } as const
