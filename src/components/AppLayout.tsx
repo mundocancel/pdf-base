@@ -1,25 +1,25 @@
-import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, type ReactNode } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Boxes, Layers, Calculator, LogOut } from "lucide-react";
+import { Boxes, Layers, Calculator, LogOut, Home } from "lucide-react";
 
 const NAV = [
-  { to: "/", label: "Inicio", icon: Boxes },
+  { to: "/", label: "Inicio", icon: Home },
   { to: "/catalogo", label: "Catálogo", icon: Boxes },
   { to: "/tipologias", label: "Tipologías", icon: Layers },
   { to: "/cotizador", label: "Cotizador", icon: Calculator },
 ];
 
-export function AppLayout() {
+export function AppLayout({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    if (!loading && !session && path !== "/auth") navigate({ to: "/auth" });
-  }, [loading, session, navigate, path]);
+    if (!loading && !session) navigate({ to: "/auth" });
+  }, [loading, session, navigate]);
 
   if (loading) return <div className="p-8 text-muted-foreground">Cargando…</div>;
   if (!session) return null;
@@ -61,9 +61,7 @@ export function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="flex-1 container mx-auto p-4">
-        <Outlet />
-      </main>
+      <main className="flex-1 container mx-auto p-4">{children}</main>
     </div>
   );
 }
