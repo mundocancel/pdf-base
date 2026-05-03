@@ -9,8 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TipologiasRouteImport } from './routes/tipologias'
+import { Route as CotizadorRouteImport } from './routes/cotizador'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TipologiasRoute = TipologiasRouteImport.update({
+  id: '/tipologias',
+  path: '/tipologias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CotizadorRoute = CotizadorRouteImport.update({
+  id: '/cotizador',
+  path: '/cotizador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +43,72 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cotizador': typeof CotizadorRoute
+  '/tipologias': typeof TipologiasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cotizador': typeof CotizadorRoute
+  '/tipologias': typeof TipologiasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cotizador': typeof CotizadorRoute
+  '/tipologias': typeof TipologiasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/catalogo' | '/cotizador' | '/tipologias'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/catalogo' | '/cotizador' | '/tipologias'
+  id: '__root__' | '/' | '/auth' | '/catalogo' | '/cotizador' | '/tipologias'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  CatalogoRoute: typeof CatalogoRoute
+  CotizadorRoute: typeof CotizadorRoute
+  TipologiasRoute: typeof TipologiasRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tipologias': {
+      id: '/tipologias'
+      path: '/tipologias'
+      fullPath: '/tipologias'
+      preLoaderRoute: typeof TipologiasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cotizador': {
+      id: '/cotizador'
+      path: '/cotizador'
+      fullPath: '/cotizador'
+      preLoaderRoute: typeof CotizadorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,16 +121,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  CatalogoRoute: CatalogoRoute,
+  CotizadorRoute: CotizadorRoute,
+  TipologiasRoute: TipologiasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
