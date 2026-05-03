@@ -29,14 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "pdf-base by MundoCancel" },
+      { name: "description", content: "PDF Base processes PDF files, extracts structured data, and offers basic automation." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "pdf-base by MundoCancel" },
+      { property: "og:description", content: "PDF Base processes PDF files, extracts structured data, and offers basic automation." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "pdf-base by MundoCancel" },
+      { name: "twitter:description", content: "PDF Base processes PDF files, extracts structured data, and offers basic automation." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8ea641df-c746-497a-baab-7ab5bd20fce7/id-preview-a6fb9969--15b4537a-f609-43c9-a61a-81642ebf9977.lovable.app-1777825832446.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8ea641df-c746-497a-baab-7ab5bd20fce7/id-preview-a6fb9969--15b4537a-f609-43c9-a61a-81642ebf9977.lovable.app-1777825832446.png" },
     ],
     links: [
       {
